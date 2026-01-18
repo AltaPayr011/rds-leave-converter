@@ -1,0 +1,2 @@
+username,password,full_name,is_admin,active,created_date
+admin,$2b$12$bvvKMxEdQtxBEiLL6MLCBeNST7HL3FRSUmPr5JTTMgM1fkHybaXkW,System Administrator,True,True,2026-01-18 10:46:03

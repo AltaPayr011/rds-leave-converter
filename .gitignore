@@ -1,0 +1,44 @@
+# Employee data (user-specific, not to be shared)
+employee_data.csv
+
+# User credentials (never commit)
+users.csv
+
+# Setup credentials file (delete after initial setup, but don't commit)
+SETUP_CREDENTIALS.md
+
+# Keep template and seed files
+!employee_data_template.csv
+!employee_data_seed.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/config.toml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
