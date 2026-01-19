@@ -227,11 +227,11 @@ def show_main_app():
     
     # Create tabs based on admin status
     if st.session_state.get('is_admin', False):
-        tabs = st.tabs(["👥 Manage Employees", "📊 Process Leave", "⚙️ Admin Panel", "ℹ️ Help"])
-        tab1, tab2, tab3, tab4 = tabs
+        tabs = st.tabs(["👥 Manage Employees", "📊 Process Leave", "⚙️ Admin Panel", "👤 My Profile", "ℹ️ Help"])
+        tab1, tab2, tab3, tab4, tab5 = tabs
     else:
-        tabs = st.tabs(["👥 Manage Employees", "📊 Process Leave", "ℹ️ Help"])
-        tab1, tab2, tab4 = tabs
+        tabs = st.tabs(["👥 Manage Employees", "📊 Process Leave", "👤 My Profile", "ℹ️ Help"])
+        tab1, tab2, tab4, tab5 = tabs
         tab3 = None
     
     # Tab 1: Employee Management
@@ -523,8 +523,77 @@ def show_main_app():
                                     st.success("✅ User deleted!")
                                     st.rerun()
     
-    # Tab 4: Help
+    # Tab 4: My Profile (for all users)
     with tab4:
+        st.header("👤 My Profile")
+        
+        current_username = st.session_state.get('username')
+        users_df = load_users()
+        
+        if current_username:
+            user_row = users_df[users_df['username'] == current_username]
+            
+            if len(user_row) > 0:
+                user_info = user_row.iloc[0]
+                
+                # Display account information
+                st.subheader("Account Information")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.info(f"""
+                    **Username:** {user_info['username']}  
+                    **Full Name:** {user_info['full_name']}  
+                    **Account Type:** {'Administrator' if user_info['is_admin'] else 'Regular User'}  
+                    **Status:** {'Active' if user_info['active'] else 'Inactive'}  
+                    **Created:** {user_info['created_date']}
+                    """)
+                
+                st.markdown("---")
+                
+                # Change Password Section
+                st.subheader("🔒 Change Password")
+                st.write("Update your password to keep your account secure.")
+                
+                with st.form("change_password_form"):
+                    current_password = st.text_input("Current Password", type="password", key="current_pwd")
+                    new_password = st.text_input("New Password", type="password", key="new_pwd")
+                    confirm_password = st.text_input("Confirm New Password", type="password", key="confirm_pwd")
+                    
+                    st.caption("💡 Tip: Use a strong password with at least 8 characters")
+                    
+                    submit_change = st.form_submit_button("🔄 Change Password", type="primary")
+                    
+                    if submit_change:
+                        if not all([current_password, new_password, confirm_password]):
+                            st.error("❌ All fields are required")
+                        elif new_password != confirm_password:
+                            st.error("❌ New passwords do not match")
+                        elif len(new_password) < 6:
+                            st.error("❌ New password must be at least 6 characters")
+                        elif new_password == current_password:
+                            st.error("❌ New password must be different from current password")
+                        else:
+                            # Verify current password
+                            if bcrypt.checkpw(current_password.encode('utf-8'), user_info['password'].encode('utf-8')):
+                                # Hash new password
+                                new_hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                                
+                                # Update password
+                                users_df.loc[users_df['username'] == current_username, 'password'] = new_hashed
+                                save_users(users_df)
+                                
+                                st.success("✅ Password changed successfully!")
+                                st.info("💡 Please remember your new password. You will need it for your next login.")
+                            else:
+                                st.error("❌ Current password is incorrect")
+            else:
+                st.error("User information not found")
+        else:
+            st.error("Session error. Please logout and login again.")
+    
+    # Tab 5: Help
+    with tab5:
         st.header("How to Use This App")
         
         st.markdown("""

@@ -1,6 +1,35 @@
 # 🎨 UI Updates - Changelog
 
-## Latest Changes (January 18, 2026 - Version 2.3)
+## Latest Changes (January 18, 2026 - Version 2.4)
+
+### 7. Self-Service Password Change ✅
+
+**New Tab: "My Profile"**
+- **Added:** My Profile tab accessible to all users (admins and regular users)
+- **Features:**
+  - View account information (username, full name, account type, status, creation date)
+  - Change own password with current password verification
+  - Password requirements: minimum 6 characters
+  - Real-time validation and error messages
+- **Location:** New tab between "Admin Panel" (admins only) and "Help"
+- **Security:** Requires current password before allowing change
+
+**User Experience:**
+- **All users** can now change their own passwords
+- No need for admin intervention for password changes
+- Immediate feedback on password change success
+- Password change takes effect on next login
+
+**Benefits:**
+- ✅ Self-service password management
+- ✅ Users don't need admin help to change passwords
+- ✅ Improved security (users can update their own passwords regularly)
+- ✅ Better user autonomy
+- ✅ Reduced admin workload
+
+---
+
+## Previous Changes (January 18, 2026 - Version 2.3)
 
 ### 6. Fixed Streamlit Deprecation Warnings ✅
 

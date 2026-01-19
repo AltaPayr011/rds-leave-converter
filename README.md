@@ -6,6 +6,7 @@ A secure, authenticated Streamlit web application for processing employee leave 
 
 - 🔐 **Secure Authentication**: Login system with encrypted passwords
 - 👑 **Admin Panel**: System administrators can manage user access
+- 👤 **My Profile**: All users can view account info and change their own password
 - 👥 **Employee Management**: Add, edit, and remove employees with customizable working hours per day
 - 📊 **Leave Processing**: Upload leave transaction files and generate detailed breakdowns
 - ⏰ **Flexible Hours**: Set different working hours for each day of the week
@@ -93,7 +94,19 @@ Administrators can:
 
 All regular users have the same access to employee and leave management features.
 
-### 3. Manage Employees
+### 3. My Profile (All Users)
+
+All users (including admins) can:
+- View their account information
+- Change their own password
+- Navigate to the **My Profile** tab
+- Enter current password for verification
+- Set a new password (minimum 6 characters)
+- Password change takes effect immediately
+
+**Important:** Remember your new password - you'll need it for your next login!
+
+### 4. Manage Employees
 
 - Navigate to the **Manage Employees** tab
 - Click "Add New Employee" and fill in:
@@ -114,7 +127,7 @@ All regular users have the same access to employee and leave management features
 - Expand the employee's section
 - Click "Delete"
 
-### 4. Process Leave Transactions
+### 5. Process Leave Transactions
 
 - Go to the **Process Leave** tab
 - Upload your leave transactions Excel file
@@ -124,7 +137,7 @@ All regular users have the same access to employee and leave management features
 - Review the preview
 - Click "Download Leave Breakdown" to get your Excel file
 
-### 5. File Format
+### 6. File Format
 
 Your leave transactions Excel file should have these columns (starting at row 8):
 - Emp. Number
@@ -136,7 +149,7 @@ Your leave transactions Excel file should have these columns (starting at row 8)
 - End Date
 - No Days
 
-### 6. Data Preparation Requirements
+### 7. Data Preparation Requirements
 
 **Before uploading your leave transactions file, you MUST:**
 

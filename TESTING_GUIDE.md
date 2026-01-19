@@ -141,6 +141,65 @@ After logging in successfully, verify:
 4. Click "🔓 Activate User"
 5. **Expected**: Status changes back to "Active"
 
+### ✅ Phase 3A: My Profile Testing
+
+#### Test 10A: View Profile Information
+1. Login as any user (admin or regular)
+2. Go to **My Profile** tab
+3. **Expected**:
+   - Account information displayed
+   - Shows username, full name, account type, status, creation date
+   - "Change Password" section visible
+
+#### Test 10B: Change Password (Success)
+1. In **My Profile** tab
+2. Scroll to "Change Password" section
+3. Fill in:
+   - Current Password: (your actual password)
+   - New Password: `newpass123`
+   - Confirm New Password: `newpass123`
+4. Click "🔄 Change Password"
+5. **Expected**: 
+   - Success message appears
+   - Confirmation that password was changed
+
+#### Test 10C: Verify Password Change
+1. Click "🚪 Logout"
+2. Try to login with old password
+3. **Expected**: Login fails
+4. Login with new password (`newpass123`)
+5. **Expected**: Login succeeds
+
+#### Test 10D: Change Password (Wrong Current Password)
+1. Go to **My Profile** tab
+2. Fill in:
+   - Current Password: `wrongpassword`
+   - New Password: `anotherpass123`
+   - Confirm New Password: `anotherpass123`
+3. Click "🔄 Change Password"
+4. **Expected**: Error message "Current password is incorrect"
+
+#### Test 10E: Change Password (Passwords Don't Match)
+1. Fill in:
+   - Current Password: (correct password)
+   - New Password: `pass1234`
+   - Confirm New Password: `pass5678`
+2. Click "🔄 Change Password"
+3. **Expected**: Error message "New passwords do not match"
+
+#### Test 10F: Change Password (Too Short)
+1. Fill in:
+   - Current Password: (correct password)
+   - New Password: `12345`
+   - Confirm New Password: `12345`
+2. Click "🔄 Change Password"
+3. **Expected**: Error message "New password must be at least 6 characters"
+
+#### Test 10G: Change Password (Same as Current)
+1. Fill in all fields with the same password
+2. Click "🔄 Change Password"
+3. **Expected**: Error message "New password must be different from current password"
+
 ### ✅ Phase 4: Employee Management Testing
 
 #### Test 11: Add Employee
@@ -367,6 +426,13 @@ Use this checklist to track your testing:
 - [ ] Test 8: Test New User Login
 - [ ] Test 9: Deactivate User
 - [ ] Test 10: Reactivate User
+- [ ] Test 10A: View Profile Information
+- [ ] Test 10B: Change Password (Success)
+- [ ] Test 10C: Verify Password Change
+- [ ] Test 10D: Change Password (Wrong Current Password)
+- [ ] Test 10E: Change Password (Passwords Don't Match)
+- [ ] Test 10F: Change Password (Too Short)
+- [ ] Test 10G: Change Password (Same as Current)
 - [ ] Test 11: Add Employee
 - [ ] Test 12: Load Seed Data
 - [ ] Test 13: Search Employee

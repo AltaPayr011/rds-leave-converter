@@ -71,6 +71,48 @@
 4. Click **"Delete User"**
 5. **Warning**: This permanently removes the user
 
+## My Profile - Self-Service Password Change
+
+**All users** (including admins) can manage their own passwords without admin intervention.
+
+### Accessing My Profile
+
+1. Login to the app
+2. Click on the **"My Profile"** tab
+3. View your account information
+4. Use the "Change Password" section
+
+### Changing Your Password
+
+1. Go to **My Profile** tab
+2. In the "Change Password" section:
+   - Enter your **current password**
+   - Enter your **new password** (minimum 6 characters)
+   - **Confirm** your new password
+3. Click "Change Password"
+
+**Security Notes:**
+- You must know your current password to change it
+- New password must be different from current password
+- Password change takes effect immediately
+- You'll need the new password for your next login
+
+**Password Requirements:**
+- Minimum 6 characters
+- Should be different from your current password
+- Recommended: Use a mix of letters, numbers, and special characters
+
+### Account Information Display
+
+In My Profile, you can view:
+- Your username
+- Your full name
+- Account type (Administrator or Regular User)
+- Account status (Active/Inactive)
+- Account creation date
+
+**Note:** You cannot change your username or full name. Contact an administrator if these need to be updated.
+
 ## Security Features
 
 ✅ **Password Encryption**: All passwords are hashed using bcrypt (one-way encryption)
