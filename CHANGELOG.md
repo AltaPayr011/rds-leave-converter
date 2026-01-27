@@ -1,6 +1,87 @@
 # 🎨 UI Updates - Changelog
 
-## Latest Changes (January 18, 2026 - Version 2.4)
+## Latest Changes (January 18, 2026 - Version 2.6)
+
+### 9. Flexible Column Name Matching ✅
+
+**Problem Solved:** "Error processing file: 'Emp. Number'"
+- **Issue:** App was too strict about exact column names from different systems
+- **Solution:** Smart column name matching that accepts variations
+
+**Now Accepts These Variations:**
+- "Emp. Number" ✅
+- "Emp Number" ✅ (no period)
+- "Employee Number" ✅
+- "Emp.Number" ✅ (no space)
+- "Emp . Number" ✅ (extra spaces)
+- ANY capitalization (case-insensitive)
+
+**Applies to All Columns:**
+- Employee Number variations
+- Start Date / StartDate / Start
+- No Days / No. Days / Days / Number of Days
+- Leave Description / Leave Desc
+- All other columns
+
+**Improved Error Messages:**
+- Clear explanation of what went wrong
+- Lists all required columns
+- Shows actual columns found in your file
+- Provides troubleshooting steps
+
+**Benefits:**
+- ✅ Works with files from different systems
+- ✅ No need to manually rename columns
+- ✅ Handles spacing and punctuation differences
+- ✅ Case-insensitive matching
+- ✅ Better error messages
+
+**Technical Details:**
+- Added `find_column()` helper function
+- Added `normalize_leave_dataframe()` function
+- Automatic column name mapping on file upload
+- Preserves original data, only normalizes names
+
+---
+
+## Previous Changes (January 18, 2026 - Version 2.5)
+
+### 8. Self-Hosting Support ✅
+
+**New Deployment Option: Host on Your Own Server**
+- **Added:** Complete self-hosting guide and automation scripts
+- **Solves:** Data persistence issue (no more data loss on restart)
+- **Includes:**
+  - SELF_HOSTING_GUIDE.md - Complete 50+ page guide
+  - install_ubuntu.sh - Automated installation script
+  - backup.sh - Automated backup script
+  - Dockerfile - Docker deployment support
+  - docker-compose.yml - Container orchestration
+  - streamlit.service - Systemd service configuration
+  - nginx.conf - Reverse proxy configuration
+  - SERVER_MANAGEMENT.md - Quick reference for server admins
+
+**Server Options:**
+- Cloud VPS (DigitalOcean, Linode, AWS) - $6/month
+- On-premises server - One-time cost
+- Docker container - Any platform
+- Windows Server - Full support
+
+**Benefits:**
+- ✅ **Permanent data storage** - No data loss
+- ✅ **Always online** - No sleep issues
+- ✅ **Full control** - Complete customization
+- ✅ **Cost-effective** - $6/month vs $20+ managed
+- ✅ **Private** - Your data stays on your server
+
+**Installation Time:**
+- Automated script: 5 minutes
+- Manual setup: 30 minutes
+- Docker deployment: 10 minutes
+
+---
+
+## Previous Changes (January 18, 2026 - Version 2.4)
 
 ### 7. Self-Service Password Change ✅
 

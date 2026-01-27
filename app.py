@@ -17,6 +17,75 @@ st.set_page_config(
 EMPLOYEE_DATA_FILE = "employee_data.csv"
 USERS_FILE = "users.csv"
 
+# ==================== HELPER FUNCTIONS ====================
+
+def find_column(df, possible_names):
+    """
+    Find a column in the dataframe that matches one of the possible names.
+    Handles variations in spacing, capitalization, and punctuation.
+    """
+    # Create a mapping of normalized names to actual column names
+    col_map = {}
+    for col in df.columns:
+        # Normalize: strip whitespace, lowercase, remove extra spaces
+        normalized = str(col).strip().lower()
+        normalized = ' '.join(normalized.split())  # Remove extra spaces
+        col_map[normalized] = col
+    
+    # Try each possible name
+    for name in possible_names:
+        normalized_name = str(name).strip().lower()
+        normalized_name = ' '.join(normalized_name.split())
+        
+        if normalized_name in col_map:
+            return col_map[normalized_name]
+    
+    return None
+
+def normalize_leave_dataframe(df):
+    """
+    Normalize column names in the leave transactions dataframe.
+    Maps various column name formats to standard names.
+    """
+    # Define column mappings
+    column_mappings = {
+        'Emp. Number': ['emp. number', 'emp number', 'employee number', 'empnumber', 'emp.number', 'emp . number'],
+        'Employee Name': ['employee name', 'emp name', 'name', 'employeename', 'emp. name'],
+        'Initials': ['initials', 'initial'],
+        'Leave Description': ['leave description', 'leavedescription', 'description', 'leave desc'],
+        'Leave Type Description': ['leave type description', 'leave type', 'leavetype', 'type description', 'leave type desc'],
+        'Start Date': ['start date', 'startdate', 'from date', 'date from', 'start'],
+        'End Date': ['end date', 'enddate', 'to date', 'date to', 'end'],
+        'No Days': ['no days', 'nodays', 'days', 'number of days', 'no. days', 'no.days', 'no . days']
+    }
+    
+    # Create new column name mapping
+    rename_dict = {}
+    missing_columns = []
+    
+    for standard_name, variations in column_mappings.items():
+        found_col = find_column(df, [standard_name] + variations)
+        if found_col:
+            if found_col != standard_name:
+                rename_dict[found_col] = standard_name
+        else:
+            missing_columns.append(standard_name)
+    
+    # Rename columns
+    if rename_dict:
+        df = df.rename(columns=rename_dict)
+    
+    # Check for missing required columns
+    if missing_columns:
+        available_cols = ', '.join(df.columns.tolist())
+        raise ValueError(
+            f"Missing required columns: {', '.join(missing_columns)}\n\n"
+            f"Available columns in your file: {available_cols}\n\n"
+            f"Please ensure your Excel file has these column headers."
+        )
+    
+    return df
+
 # ==================== USER AUTHENTICATION ====================
 
 def hash_password(password):
@@ -356,7 +425,13 @@ def show_main_app():
             
             if uploaded_file is not None:
                 try:
+                    # Read the Excel file
                     leave_df = pd.read_excel(uploaded_file, sheet_name=0, header=7)
+                    
+                    # Normalize column names to handle variations
+                    leave_df = normalize_leave_dataframe(leave_df)
+                    
+                    # Filter out group headers and invalid rows
                     leave_df = leave_df[leave_df['Emp. Number'] != 'Group : All Groups'].reset_index(drop=True)
                     leave_df = leave_df[leave_df['No Days'] >= 0].reset_index(drop=True)
                     
@@ -415,8 +490,45 @@ def show_main_app():
                         st.info("👆 Please confirm that declined/cancelled leave has been removed before processing.")
                     
                 except Exception as e:
-                    st.error(f"Error processing file: {str(e)}")
-                    st.info("Please ensure the file format matches the expected structure.")
+                    error_message = str(e)
+                    st.error(f"❌ Error processing file:")
+                    st.code(error_message)
+                    
+                    # Provide helpful guidance based on error type
+                    if "Missing required columns" in error_message:
+                        st.info("""
+                        📝 **Column Name Issue**
+                        
+                        The app couldn't find the required columns in your Excel file. This usually happens when:
+                        - Column names have been changed
+                        - The file format is different than expected
+                        - Data starts on a different row
+                        
+                        **Required columns:**
+                        - Emp. Number (or Employee Number)
+                        - Employee Name
+                        - Initials
+                        - Leave Description
+                        - Leave Type Description
+                        - Start Date
+                        - End Date
+                        - No Days (or Number of Days)
+                        
+                        **The app accepts variations of these names** (e.g., "Emp. Number", "Emp Number", "Employee Number" all work).
+                        
+                        Please check your Excel file has these column headers (row 8 typically).
+                        """)
+                    else:
+                        st.info("""
+                        📝 **Troubleshooting Tips:**
+                        1. Make sure your Excel file has column headers on **row 8**
+                        2. Check that column names include: "Emp. Number", "Employee Name", "Start Date", etc.
+                        3. Ensure dates are in proper date format (not text)
+                        4. Remove any completely blank rows
+                        5. Make sure "No Days" column contains numbers
+                        
+                        If the problem persists, please check the file format matches the example Leave_Transactions file.
+                        """)
     
     # Tab 3: Admin Panel (only for admins)
     if tab3 is not None:

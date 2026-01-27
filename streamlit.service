@@ -1,0 +1,15 @@
+[Unit]
+Description=RDS PaySpace Leave Converter - Streamlit App
+After=network.target
+
+[Service]
+Type=simple
+User=streamlit
+WorkingDirectory=/home/streamlit/leave_breakdown_app
+Environment="PATH=/home/streamlit/leave_breakdown_app/venv/bin"
+ExecStart=/home/streamlit/leave_breakdown_app/venv/bin/streamlit run app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
