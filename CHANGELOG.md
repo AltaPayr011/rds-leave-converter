@@ -1,6 +1,56 @@
 # 🎨 UI Updates - Changelog
 
-## Latest Changes (January 18, 2026 - Version 2.7)
+## Latest Changes (January 18, 2026 - Version 2.8)
+
+### 11. Smart Header Detection & Automatic Status Filtering ✅
+
+**Problem Solved:** Files with headers on row 1 vs row 8 causing errors
+- **Issue:** Different systems export with headers on different rows
+- **Solution:** Automatic header row detection + Status column filtering
+
+**Smart Header Detection:**
+- ✅ Automatically detects if headers are on row 1 or row 8
+- ✅ Works with both file formats
+- ✅ No user intervention needed
+- ✅ Tries row 1 first (most common)
+- ✅ Falls back to row 8 (legacy format)
+
+**Automatic Status Filtering:**
+- ✅ Detects if file has "Status" column
+- ✅ Automatically filters to keep only "Approved" leave
+- ✅ Removes "Declined" and "Cancelled" automatically
+- ✅ Shows count of filtered transactions
+- ✅ No manual Excel editing needed!
+
+**Status Column Support:**
+- Added "Status" to accepted column names
+- Status is optional (not required)
+- If present: automatic filtering applied
+- If absent: warning shown to user
+
+**User Experience:**
+- Upload file → App detects format automatically
+- If Status column exists → Declined/Cancelled removed automatically
+- Shows: "✅ File uploaded successfully! Found 15 approved leave transactions."
+- Plus: "ℹ️ Automatically filtered out 3 non-approved leave transactions"
+
+**Benefits:**
+- ✅ Works with multiple file formats
+- ✅ Handles both row 1 and row 8 headers
+- ✅ Automatic data cleaning (no manual Excel edits)
+- ✅ Saves time on every upload
+- ✅ Less room for user error
+
+**Technical Details:**
+- Added `detect_header_row()` function
+- Checks for required columns in both locations
+- Returns best match automatically
+- Added Status column filtering logic
+- Made Status optional in validation
+
+---
+
+## Previous Changes (January 18, 2026 - Version 2.7)
 
 ### 10. Robust Data Type Handling ✅
 

@@ -42,6 +42,37 @@ def find_column(df, possible_names):
     
     return None
 
+def detect_header_row(file):
+    """
+    Intelligently detect which row contains the column headers.
+    Tries common locations: row 0 (first row) and row 7 (8th row).
+    """
+    required_columns = ['emp', 'employee', 'start', 'end', 'days', 'leave']
+    
+    # Try row 0 first (most common)
+    try:
+        df = pd.read_excel(file, sheet_name=0, header=0, nrows=5)
+        cols_lower = [str(col).lower() for col in df.columns]
+        matches = sum(1 for req in required_columns if any(req in col for col in cols_lower))
+        if matches >= 4:  # If we find at least 4 required columns
+            return 0
+    except:
+        pass
+    
+    # Try row 7 (legacy format)
+    try:
+        file.seek(0)  # Reset file pointer
+        df = pd.read_excel(file, sheet_name=0, header=7, nrows=5)
+        cols_lower = [str(col).lower() for col in df.columns]
+        matches = sum(1 for req in required_columns if any(req in col for col in cols_lower))
+        if matches >= 4:
+            return 7
+    except:
+        pass
+    
+    # Default to row 0 if detection fails
+    return 0
+
 def normalize_leave_dataframe(df):
     """
     Normalize column names in the leave transactions dataframe.
@@ -56,12 +87,14 @@ def normalize_leave_dataframe(df):
         'Leave Type Description': ['leave type description', 'leave type', 'leavetype', 'type description', 'leave type desc'],
         'Start Date': ['start date', 'startdate', 'from date', 'date from', 'start'],
         'End Date': ['end date', 'enddate', 'to date', 'date to', 'end'],
-        'No Days': ['no days', 'nodays', 'days', 'number of days', 'no. days', 'no.days', 'no . days']
+        'No Days': ['no days', 'nodays', 'days', 'number of days', 'no. days', 'no.days', 'no . days'],
+        'Status': ['status', 'leave status', 'approval status', 'state']  # NEW
     }
     
     # Create new column name mapping
     rename_dict = {}
     missing_columns = []
+    optional_columns = ['Status']  # These columns are optional
     
     for standard_name, variations in column_mappings.items():
         found_col = find_column(df, [standard_name] + variations)
@@ -69,7 +102,9 @@ def normalize_leave_dataframe(df):
             if found_col != standard_name:
                 rename_dict[found_col] = standard_name
         else:
-            missing_columns.append(standard_name)
+            # Only add to missing if it's not an optional column
+            if standard_name not in optional_columns:
+                missing_columns.append(standard_name)
     
     # Rename columns
     if rename_dict:
@@ -437,8 +472,12 @@ def show_main_app():
             
             if uploaded_file is not None:
                 try:
-                    # Read the Excel file
-                    leave_df = pd.read_excel(uploaded_file, sheet_name=0, header=7)
+                    # Detect which row contains the headers
+                    header_row = detect_header_row(uploaded_file)
+                    uploaded_file.seek(0)  # Reset file pointer
+                    
+                    # Read the Excel file with detected header row
+                    leave_df = pd.read_excel(uploaded_file, sheet_name=0, header=header_row)
                     
                     # Normalize column names to handle variations
                     leave_df = normalize_leave_dataframe(leave_df)
@@ -446,6 +485,15 @@ def show_main_app():
                     # Filter out group headers and invalid rows
                     leave_df = leave_df[leave_df['Emp. Number'] != 'Group : All Groups'].reset_index(drop=True)
                     leave_df = leave_df[leave_df['No Days'] >= 0].reset_index(drop=True)
+                    
+                    # Check if Status column exists and filter automatically
+                    if 'Status' in leave_df.columns:
+                        original_count = len(leave_df)
+                        # Keep only Approved status, remove Declined/Cancelled
+                        leave_df = leave_df[leave_df['Status'].str.strip().str.lower() == 'approved'].reset_index(drop=True)
+                        filtered_count = original_count - len(leave_df)
+                        if filtered_count > 0:
+                            st.info(f"ℹ️ Automatically filtered out {filtered_count} non-approved leave transactions (Declined/Cancelled)")
                     
                     # Clean and validate data types
                     leave_df['Emp. Number'] = leave_df['Emp. Number'].astype(str).str.strip()
@@ -464,18 +512,21 @@ def show_main_app():
                     # Ensure No Days is numeric
                     leave_df['No Days'] = pd.to_numeric(leave_df['No Days'], errors='coerce').fillna(0)
                     
-                    st.success(f"✅ File uploaded successfully! Found {len(leave_df)} leave transactions.")
+                    st.success(f"✅ File uploaded successfully! Found {len(leave_df)} approved leave transactions.")
                     
                     # Warning message about declined/cancelled leave
-                    st.warning("⚠️ **IMPORTANT: Data Validation Required**")
-                    st.markdown("""
-                    Before processing this file, please ensure you have:
-                    - ✅ Removed all **Declined** leave transactions
-                    - ✅ Removed all **Cancelled** leave transactions
-                    - ✅ Verified that only **Approved** leave transactions remain
-                    
-                    Processing declined or cancelled leave will result in incorrect calculations.
-                    """)
+                    if 'Status' not in leave_df.columns:
+                        st.warning("⚠️ **IMPORTANT: Data Validation Required**")
+                        st.markdown("""
+                        Before processing this file, please ensure you have:
+                        - ✅ Removed all **Declined** leave transactions
+                        - ✅ Removed all **Cancelled** leave transactions
+                        - ✅ Verified that only **Approved** leave transactions remain
+                        
+                        Processing declined or cancelled leave will result in incorrect calculations.
+                        
+                        *Note: Your file doesn't have a Status column, so automatic filtering cannot be applied.*
+                        """)
                     
                     # Confirmation checkbox
                     confirmed = st.checkbox(
