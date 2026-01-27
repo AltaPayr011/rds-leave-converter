@@ -1,6 +1,51 @@
 # 🎨 UI Updates - Changelog
 
-## Latest Changes (January 18, 2026 - Version 2.6)
+## Latest Changes (January 18, 2026 - Version 2.7)
+
+### 10. Robust Data Type Handling ✅
+
+**Problem Solved:** "sequence item 7: expected str instance, datetime.datetime found"
+- **Issue:** Excel files with mixed data types causing processing errors
+- **Solution:** Automatic data type cleaning and validation
+
+**Data Cleaning Added:**
+- ✅ Converts all text fields to strings automatically
+- ✅ Validates date fields and converts to datetime
+- ✅ Ensures numeric fields are numbers
+- ✅ Removes rows with invalid data
+- ✅ Strips whitespace from text fields
+
+**Specific Fixes:**
+1. **Employee Number** - Always converted to string
+2. **Employee Name** - Always converted to string
+3. **Initials** - Always converted to string
+4. **Start Date** - Validated as datetime, invalid rows removed
+5. **End Date** - Validated as datetime, invalid rows removed
+6. **No Days** - Converted to numeric, invalid values set to 0
+7. **All text fields** - Whitespace trimmed
+
+**Error Handling Improvements:**
+- Detects datetime/data type errors
+- Provides specific fix instructions
+- Guides user to check date formats
+- Explains what each column should contain
+
+**Technical Changes:**
+- Added explicit type conversion in `process_leave_breakdown()`
+- Added data cleaning after Excel file upload
+- Added error handling for date parsing
+- Added validation for numeric fields
+
+**Benefits:**
+- ✅ Handles messy Excel data gracefully
+- ✅ No more cryptic datetime errors
+- ✅ Clear guidance when data is invalid
+- ✅ Automatic data cleanup
+- ✅ More robust processing
+
+---
+
+## Previous Changes (January 18, 2026 - Version 2.6)
 
 ### 9. Flexible Column Name Matching ✅
 

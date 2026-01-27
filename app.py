@@ -190,14 +190,26 @@ def process_leave_breakdown(leave_df, employee_df):
         }
     
     for idx, row in leave_df.iterrows():
-        emp_num = row['Emp. Number']
-        emp_name = row['Employee Name']
-        initials = row['Initials']
-        leave_desc = row['Leave Description']
-        leave_type = row['Leave Type Description']
-        start_date = pd.to_datetime(row['Start Date'])
-        end_date = pd.to_datetime(row['End Date'])
-        no_days = row['No Days']
+        # Explicitly convert to appropriate types to avoid datetime errors
+        emp_num = str(row['Emp. Number']).strip()
+        emp_name = str(row['Employee Name']).strip()
+        initials = str(row['Initials']).strip() if pd.notna(row['Initials']) else ''
+        leave_desc = str(row['Leave Description']).strip()
+        leave_type = str(row['Leave Type Description']).strip()
+        
+        # Convert dates properly
+        try:
+            start_date = pd.to_datetime(row['Start Date'])
+            end_date = pd.to_datetime(row['End Date'])
+        except Exception as e:
+            # Skip this row if dates can't be parsed
+            continue
+            
+        # Convert number of days to float
+        try:
+            no_days = float(row['No Days'])
+        except (ValueError, TypeError):
+            no_days = 0
         
         if emp_num in hours_dict:
             emp_hours = hours_dict[emp_num]
@@ -220,14 +232,14 @@ def process_leave_breakdown(leave_df, employee_df):
                     daily_hours = base_daily_hours if pd.notna(base_daily_hours) else 0
                 
                 breakdown_data.append({
-                    'Employee Number': emp_num,
-                    'Employee Name': emp_name,
-                    'Initials': initials,
-                    'Leave Description': leave_desc,
-                    'Leave Type Description': leave_type,
+                    'Employee Number': str(emp_num),
+                    'Employee Name': str(emp_name),
+                    'Initials': str(initials),
+                    'Leave Description': str(leave_desc),
+                    'Leave Type Description': str(leave_type),
                     'Date': current_date.strftime('%Y-%m-%d'),
                     'Day of Week': current_date.strftime('%A'),
-                    'Daily Hours': daily_hours
+                    'Daily Hours': float(daily_hours) if pd.notna(daily_hours) else 0.0
                 })
             
             current_date += timedelta(days=1)
@@ -435,6 +447,23 @@ def show_main_app():
                     leave_df = leave_df[leave_df['Emp. Number'] != 'Group : All Groups'].reset_index(drop=True)
                     leave_df = leave_df[leave_df['No Days'] >= 0].reset_index(drop=True)
                     
+                    # Clean and validate data types
+                    leave_df['Emp. Number'] = leave_df['Emp. Number'].astype(str).str.strip()
+                    leave_df['Employee Name'] = leave_df['Employee Name'].astype(str).str.strip()
+                    leave_df['Initials'] = leave_df['Initials'].astype(str).str.strip()
+                    leave_df['Leave Description'] = leave_df['Leave Description'].astype(str).str.strip()
+                    leave_df['Leave Type Description'] = leave_df['Leave Type Description'].astype(str).str.strip()
+                    
+                    # Ensure dates are datetime objects
+                    leave_df['Start Date'] = pd.to_datetime(leave_df['Start Date'], errors='coerce')
+                    leave_df['End Date'] = pd.to_datetime(leave_df['End Date'], errors='coerce')
+                    
+                    # Remove rows with invalid dates
+                    leave_df = leave_df.dropna(subset=['Start Date', 'End Date']).reset_index(drop=True)
+                    
+                    # Ensure No Days is numeric
+                    leave_df['No Days'] = pd.to_numeric(leave_df['No Days'], errors='coerce').fillna(0)
+                    
                     st.success(f"✅ File uploaded successfully! Found {len(leave_df)} leave transactions.")
                     
                     # Warning message about declined/cancelled leave
@@ -517,6 +546,25 @@ def show_main_app():
                         **The app accepts variations of these names** (e.g., "Emp. Number", "Emp Number", "Employee Number" all work).
                         
                         Please check your Excel file has these column headers (row 8 typically).
+                        """)
+                    elif "datetime" in error_message.lower() or "sequence" in error_message.lower():
+                        st.info("""
+                        📝 **Data Format Issue**
+                        
+                        There's an issue with the data format in your Excel file. Common causes:
+                        
+                        1. **Date Columns**: Make sure "Start Date" and "End Date" contain actual dates, not text
+                        2. **Employee Number**: Should contain numbers or text, not dates
+                        3. **No Days**: Should contain numbers (e.g., 1, 0.5, 2) not text
+                        
+                        **How to fix:**
+                        - Open your Excel file
+                        - Check that date columns are formatted as dates
+                        - Check that "Emp. Number" doesn't contain date values
+                        - Check that "No Days" contains only numbers
+                        - Save and try uploading again
+                        
+                        **Quick check:** Look at your Excel file. Do the Start Date and End Date columns show dates like "2024-01-15"?
                         """)
                     else:
                         st.info("""
